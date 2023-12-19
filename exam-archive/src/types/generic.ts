@@ -1,0 +1,3 @@
+interface IResponse {
+  message: string;
+}
