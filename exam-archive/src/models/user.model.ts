@@ -41,15 +41,10 @@ UserSchema.pre("save", async function (next) {
 });
 
 UserSchema.methods.comparePassword = function (
-  password: string,
-  cb: (arg0: Error | null, arg1: boolean | undefined) => void
+  enteredPassword: string,
+  hashedPassword: string
 ) {
-  bcrypt.compare(password, this.password, (err, isMatch) => {
-    if (err) {
-      return cb(err, undefined);
-    }
-    cb(null, isMatch);
-  });
+  return bcrypt.compareSync(enteredPassword, hashedPassword);
 };
 
 const User = mongoose.models.user || mongoose.model("user", UserSchema);
