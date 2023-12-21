@@ -39,7 +39,6 @@ const loginFormSchema = z
 export type TLogin = z.infer<typeof loginFormSchema>;
 
 export default function Login() {
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -49,8 +48,6 @@ export default function Login() {
   });
 
   const handleSubmit = async (values: TLogin) => {
-    setIsSubmitting(true);
-
     const res = await fetch("/api/auth/signIn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,7 +61,6 @@ export default function Login() {
       return;
     }
 
-    setIsSubmitting(false);
     setError(null);
     formProps.reset();
 
@@ -111,8 +107,13 @@ export default function Login() {
           }}
         />
         {error !== null && <div>{error}</div>}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Verifying..." : "Login"}
+        <Link href={"/auth/reset"}>
+          Forgot Password? <span>Reset</span>
+        </Link>
+        <br />
+        <br />
+        <Button type="submit" disabled={formProps.formState.isSubmitting}>
+          {formProps.formState.isSubmitting ? "Verifying..." : "Login"}
         </Button>
         <Link href={"/auth/newUser"}>
           Don't have an account? <span>Register</span>
