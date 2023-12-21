@@ -13,6 +13,7 @@ import {
 import {
   AUTH_TOKEN,
   COOKIES_TTL,
+  JWT_MAX_AGE,
   MONGO_READ_QUERY_TIMEOUT,
 } from "@/constants/constants";
 import { signTokens } from "@/helpers/jsonwebtokens";
@@ -38,7 +39,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = await signTokens({ username, email });
+    const JWTPayload = { username, email };
+
+    const token = await signTokens({ JWTPayload, JWT_MAX_AGE });
 
     if (token === null) throw new Error("Couldn't generate a JWT token");
 
