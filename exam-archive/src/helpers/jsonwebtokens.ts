@@ -1,25 +1,21 @@
-import { JWT_MAX_AGE } from "@/constants/constants";
-import { SignJWT, jwtVerify } from "jose";
+import { JWTPayload, SignJWT, jwtVerify } from "jose";
 
 export const signTokens = async ({
-  email,
-  username,
+  JWTPayload,
+  JWT_MAX_AGE,
 }: {
-  email?: string;
-  username?: string;
+  JWTPayload: IJWTPayload;
+  JWT_MAX_AGE: string | number;
 }): Promise<string | null> => {
-  if (!(email || username)) {
-    console.error("JWT payload is undefined");
-    return null;
-  }
   if (!process.env.JWT_SECRET) {
     console.error(
       "JWT secret is missing. You need to provide one to generate a token"
     );
     return null;
   }
+
   try {
-    const token = await new SignJWT({ username, email })
+    const token = await new SignJWT(JWTPayload)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime(JWT_MAX_AGE)
@@ -35,7 +31,7 @@ export const verifyTokens = async ({
   token,
 }: {
   token: string;
-}): Promise<boolean> => {
+}): Promise<boolean | JWTPayload> => {
   if (!process.env.JWT_SECRET) {
     console.error(
       "JWT secret is missing. You need to provide one to generate a token"
@@ -44,10 +40,13 @@ export const verifyTokens = async ({
   }
 
   try {
-    await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET));
-    return true;
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    return payload;
   } catch (error: any) {
-    console.error("In verify token", error);
+    console.error("In verify token", error.message);
     return false;
   }
 };
