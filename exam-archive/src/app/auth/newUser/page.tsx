@@ -47,7 +47,6 @@ const registerFormSchema = z
 export type TRegister = z.infer<typeof registerFormSchema>;
 
 export default function Register() {
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -61,8 +60,6 @@ export default function Register() {
   });
 
   const handleSubmit = async (values: TRegister) => {
-    setIsSubmitting(true);
-
     const res = await fetch("/api/auth/newUser", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -76,7 +73,6 @@ export default function Register() {
       return;
     }
 
-    setIsSubmitting(false);
     setError(null);
     formProps.reset();
 
@@ -141,8 +137,8 @@ export default function Register() {
           }}
         />
         {error !== null && <div>{error}</div>}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Registering..." : "Register"}
+        <Button type="submit" disabled={formProps.formState.isSubmitting}>
+          {formProps.formState.isSubmitting ? "Registering..." : "Register"}
         </Button>
         <Link href={"/auth/signIn"}>
           Already have an account? <span>Login</span>
