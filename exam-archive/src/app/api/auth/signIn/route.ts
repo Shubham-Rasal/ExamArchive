@@ -14,6 +14,7 @@ import {
 import {
   AUTH_TOKEN,
   COOKIES_TTL,
+  JWT_MAX_AGE,
   MONGO_READ_QUERY_TIMEOUT,
 } from "@/constants/constants";
 import { signTokens } from "@/helpers/jsonwebtokens";
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({
       $or: [{ email }, { username }],
     })
-      .select({ _id: 1 })
+      .select({ _id: 1, password: 1 })
       .maxTimeMS(MONGO_READ_QUERY_TIMEOUT)
       .exec();
 
@@ -41,9 +42,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isPasswordCorrect = await user.comparePassword(password);
+    const isPasswordCorrect = await user.comparePassword(
+      password,
+      user.password
+    );
 
-    if (isPasswordCorrect === false) {
+    if (!isPasswordCorrect) {
       return NextResponse.json(
         {
           message:
@@ -53,8 +57,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const jwtPayload = { username: email ? undefined : username, email };
-    const token = await signTokens(jwtPayload);
+    const JWTPayload = {};
+    email === undefined
+      ? Object.assign(JWTPayload, { username })
+      : Object.assign(JWTPayload, { email });
+
+    const token = await signTokens({ JWTPayload, JWT_MAX_AGE });
     if (token === null) throw new Error("Couldn't generate a JWT token");
 
     cookies().set(AUTH_TOKEN, token, {
