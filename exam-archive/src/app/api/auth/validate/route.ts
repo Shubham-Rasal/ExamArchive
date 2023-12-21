@@ -1,5 +1,5 @@
 import { ERROR_CODES, SUCCESS_CODES } from "@/constants/statuscode";
-import { verifyTokens } from "@/helpers/jsonwebtokens";
+import { verifyTokens } from "@/helpers/auth/jsonwebtokens";
 import { JWTPayload } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 

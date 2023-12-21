@@ -13,7 +13,7 @@ import {
   SERVER_ERROR,
   SUCCESS_CODES,
 } from "@/constants/statuscode";
-import { signTokens } from "@/helpers/jsonwebtokens";
+import { signTokens } from "@/helpers/auth/jsonwebtokens";
 import resetPasswordMail from "@/helpers/mailTemplate/resetPassword";
 import sendMail from "@/helpers/nodemailer";
 import connectDB from "@/lib/config/database.config";

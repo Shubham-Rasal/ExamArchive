@@ -17,7 +17,7 @@ import {
   JWT_MAX_AGE,
   MONGO_READ_QUERY_TIMEOUT,
 } from "@/constants/constants";
-import { signTokens } from "@/helpers/jsonwebtokens";
+import { signTokens } from "@/helpers/auth/jsonwebtokens";
 
 export async function POST(request: NextRequest) {
   try {
