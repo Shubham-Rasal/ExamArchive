@@ -16,27 +16,27 @@ const sendMail = async ({
     NODEMAILER_PASSWORD,
   } = process.env;
 
-  if (
-    !NODEMAILER_PORT ||
-    !NODEMAILER_USER ||
-    !NODEMAILER_PASSWORD ||
-    !NODEMAILER_HOST
-  ) {
-    console.log(
-      "Some of the essential environment variables for Nodemailer missing"
-    );
-    return false;
-  }
+  // if (
+  //   !NODEMAILER_PORT ||
+  //   !NODEMAILER_USER ||
+  //   !NODEMAILER_PASSWORD ||
+  //   !NODEMAILER_HOST
+  // ) {
+  //   console.log(
+  //     "Some of the essential environment variables for Nodemailer missing"
+  //   );
+  //   return false;
+  // }
 
   const transporter = nodemailer.createTransport({
-    service: NODEMAILER_HOST,
+    host: NODEMAILER_HOST,
     port: NODEMAILER_PORT,
     secure: process.env.NODE_ENV === "production",
     auth: {
       user: NODEMAILER_USER,
       pass: NODEMAILER_PASSWORD,
     },
-  });
+  } as nodemailer.TransportOptions);
 
   const mailOptions = {
     from: NODEMAILER_USER,
@@ -46,7 +46,7 @@ const sendMail = async ({
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions) as any
     console.log(`Email sent: ${info.response}`);
     return true;
   } catch (error: any) {
