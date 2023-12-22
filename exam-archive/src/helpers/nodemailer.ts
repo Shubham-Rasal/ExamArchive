@@ -16,21 +16,21 @@ const sendMail = async ({
     NODEMAILER_PASSWORD,
   } = process.env;
 
-  // if (
-  //   !NODEMAILER_PORT ||
-  //   !NODEMAILER_USER ||
-  //   !NODEMAILER_PASSWORD ||
-  //   !NODEMAILER_HOST
-  // ) {
-  //   console.log(
-  //     "Some of the essential environment variables for Nodemailer missing"
-  //   );
-  //   return false;
-  // }
+  if (
+    !NODEMAILER_PORT ||
+    !NODEMAILER_USER ||
+    !NODEMAILER_PASSWORD ||
+    !NODEMAILER_HOST
+  ) {
+    console.log(
+      "Some of the essential environment variables for Nodemailer missing"
+    );
+    return false;
+  }
 
   const transporter = nodemailer.createTransport({
-    host: NODEMAILER_HOST,
-    port: NODEMAILER_PORT,
+    service: NODEMAILER_HOST,
+    port: Number(NODEMAILER_PORT),
     secure: process.env.NODE_ENV === "production",
     auth: {
       user: NODEMAILER_USER,
