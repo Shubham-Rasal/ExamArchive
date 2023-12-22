@@ -30,7 +30,7 @@ const sendMail = async ({
 
   const transporter = nodemailer.createTransport({
     service: NODEMAILER_HOST,
-    port: NODEMAILER_PORT,
+    port: Number(NODEMAILER_PORT),
     secure: process.env.NODE_ENV === "production",
     auth: {
       user: NODEMAILER_USER,
