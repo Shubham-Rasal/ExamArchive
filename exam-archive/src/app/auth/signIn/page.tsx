@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ApiRoutes, PageRoutes } from "@/constants/route";
 
 const loginFormSchema = z
   .object({
@@ -48,7 +49,7 @@ export default function Login() {
   });
 
   const handleSubmit = async (values: TLogin) => {
-    const res = await fetch("/api/auth/signIn", {
+    const res = await fetch(ApiRoutes.auth.signIn, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -64,7 +65,7 @@ export default function Login() {
     setError(null);
     formProps.reset();
 
-    router.push("/dashboard");
+    router.push(PageRoutes.dashboard.home);
   };
 
   return (
@@ -107,7 +108,7 @@ export default function Login() {
           }}
         />
         {error !== null && <div>{error}</div>}
-        <Link href={"/auth/reset"}>
+        <Link href={PageRoutes.auth.reset}>
           Forgot Password? <span>Reset</span>
         </Link>
         <br />
@@ -115,7 +116,7 @@ export default function Login() {
         <Button type="submit" disabled={formProps.formState.isSubmitting}>
           {formProps.formState.isSubmitting ? "Verifying..." : "Login"}
         </Button>
-        <Link href={"/auth/newUser"}>
+        <Link href={PageRoutes.auth.newUser}>
           Don't have an account? <span>Register</span>
         </Link>
       </form>

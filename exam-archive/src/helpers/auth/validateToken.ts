@@ -1,6 +1,8 @@
+import { ApiRoutes } from "@/constants/route";
+
 const validateToken = async (authToken: string): Promise<string | null> => {
   try {
-    const res = await fetch("/api/auth/validate", {
+    const res = await fetch(ApiRoutes.auth.validate, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ authToken }),

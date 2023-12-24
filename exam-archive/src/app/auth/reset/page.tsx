@@ -16,6 +16,7 @@ import { ACTION, AUTH_TOKEN } from "@/constants/constants";
 import validateToken from "@/helpers/auth/validateToken";
 import isEmail from "validator/lib/isEmail";
 import isValidPassword from "@/helpers/auth/validatePassword";
+import { ApiRoutes, PageRoutes } from "@/constants/route";
 
 export type TReset = { password: string; email?: string };
 
@@ -64,7 +65,7 @@ export default function Reset() {
       Object.assign(values, { action: actionType, email });
     }
 
-    const res = await fetch("/api/auth/reset", {
+    const res = await fetch(ApiRoutes.auth.reset, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -79,7 +80,7 @@ export default function Reset() {
     setError(null);
     formProps.reset();
 
-    if (actionType === ACTION.RESET) router.push("/dashboard");
+    if (actionType === ACTION.RESET) router.push(PageRoutes.dashboard.home);
   };
 
   return (
