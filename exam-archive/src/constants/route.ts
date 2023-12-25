@@ -5,7 +5,7 @@ export const PageRoutes = {
     reset: "/auth/reset",
   },
   dashboard: {
-    home: "/",
+    home: "/dashboard",
   },
 } as const;
 
