@@ -1,10 +1,22 @@
 import { AUTH_TOKEN } from "@/constants/constants";
-import { SERVER_ERROR, SUCCESS_CODES } from "@/constants/statuscode";
+import {
+  ERROR_CODES,
+  SERVER_ERROR,
+  SUCCESS_CODES,
+} from "@/constants/statuscode";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
+    if (!cookies().get(AUTH_TOKEN)) {
+      return NextResponse.json(
+        {
+          message: "Unauthenticated user. Your IP has been logged.",
+        },
+        { status: ERROR_CODES.UNAUTHORIZED }
+      );
+    }
     cookies().set(AUTH_TOKEN, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
