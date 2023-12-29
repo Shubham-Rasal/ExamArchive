@@ -20,9 +20,19 @@ import connectDB from "@/lib/config/database.config";
 import User from "@/models/user.model";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
+import { PageRoutes } from "@/constants/route";
+
+type TAction = (typeof ACTION)[keyof typeof ACTION];
+
+interface IReset {
+  email: string;
+  password?: string;
+  action: TAction;
+}
 
 export async function POST(request: NextRequest) {
-  const { action, email, password } = await request.json();
+  const { action, email, password } = (await request.json()) as IReset;
 
   if (action === ACTION.EMAIL) {
     try {
@@ -48,7 +58,10 @@ export async function POST(request: NextRequest) {
 
       if (!resetToken) throw new Error(`Couldn't generate reset token`);
 
-      const resetLink = `${process.env.DOMAIN_URL}/auth/reset?${AUTH_TOKEN}=${resetToken}`;
+      if (process.env.DOMAIN_URL === undefined)
+        throw new Error("Specify your domain to generate a reset link");
+
+      const resetLink = `${process.env.DOMAIN_URL}${PageRoutes.auth.reset}?${AUTH_TOKEN}=${resetToken}`;
 
       const { subject, html } = resetPasswordMail(resetLink);
 
@@ -56,7 +69,7 @@ export async function POST(request: NextRequest) {
       if (isSend === false) throw new Error();
 
       return NextResponse.json(
-        { message: "Please check your inbox", link: resetLink },
+        { message: "Please check your inbox" },
         { status: SUCCESS_CODES.OK }
       );
     } catch (error: any) {
@@ -72,7 +85,7 @@ export async function POST(request: NextRequest) {
       await connectDB();
 
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(password as string, salt);
 
       const user = await User.findOneAndUpdate(
         { email },

@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
+  const connected = 1;
+  if (mongoose.connections[0].readyState === connected) return;
+
   try {
     const { MONGO_URI } = process.env;
 

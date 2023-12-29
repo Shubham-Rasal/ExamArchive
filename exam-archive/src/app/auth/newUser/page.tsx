@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ApiRoutes, PageRoutes } from "@/constants/route";
 
 const registerFormSchema = z
   .object({
@@ -60,7 +61,7 @@ export default function Register() {
   });
 
   const handleSubmit = async (values: TRegister) => {
-    const res = await fetch("/api/auth/newUser", {
+    const res = await fetch(ApiRoutes.auth.newUser, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -76,7 +77,7 @@ export default function Register() {
     setError(null);
     formProps.reset();
 
-    router.push("/dashboard");
+    router.push(PageRoutes.dashboard.home);
   };
 
   return (
@@ -140,7 +141,7 @@ export default function Register() {
         <Button type="submit" disabled={formProps.formState.isSubmitting}>
           {formProps.formState.isSubmitting ? "Registering..." : "Register"}
         </Button>
-        <Link href={"/auth/signIn"}>
+        <Link href={PageRoutes.auth.signIn}>
           Already have an account? <span>Login</span>
         </Link>
       </form>

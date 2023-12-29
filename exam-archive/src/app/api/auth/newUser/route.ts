@@ -66,7 +66,5 @@ export async function POST(request: NextRequest) {
       { message: "Something went wrong. Please try again later" },
       { status: SERVER_ERROR["INTERNAL SERVER ERROR"] }
     );
-  } finally {
-    await mongoose.disconnect();
   }
 }
