@@ -1,12 +1,7 @@
 "use client"
-
+import React from "react";
 import Link from "next/link";
-
 export default function LandingPage() {
-  function handleChanger(data: any): void {
-    // console.log(data);
-  }
-
   return (
     <div>
       <nav className="bg-gray-800 text-white">
@@ -64,7 +59,7 @@ export default function LandingPage() {
             </div>
             <div
               className="flex py-3 px-4 rounded-lg text-gray-500 font-semibold cursor-pointer"
-              onClick={handleChanger}
+              
             >
               <Link href="./filter">Filter</Link>
               <svg
@@ -90,7 +85,7 @@ export default function LandingPage() {
       </div>
 
       <div className="flex flex-wrap justify-center items-center px-20 mt-10 space-x-5">
-        {/* Repetitive card structure adjusted here */}
+        
         {[1, 2, 3, 4, 5].map((item) => (
           <div
             key={item}

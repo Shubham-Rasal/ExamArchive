@@ -1,6 +1,9 @@
 "use client"
+
+
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+
 interface FilterData {
   institute_name: string;
   year: string;
@@ -9,12 +12,12 @@ interface FilterData {
   location: string;
 }
 
-interface FilterProps {
-  handleChanger: (data: FilterData) => void;
-}
+// interface FilterProps {
+//   handleChanger: (data: FilterData) => void;
+// }
 
-export default function Filter(props: FilterProps): JSX.Element {
-    const router = useRouter();
+export default function Filter(props: any): JSX.Element {
+  const router = useRouter();
   const [data, setData] = useState<FilterData>({
     institute_name: "",
     year: "",
@@ -33,10 +36,7 @@ export default function Filter(props: FilterProps): JSX.Element {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    console.log(data)
-
-      props.handleChanger(data);
-    
+    // props.handleChanger(data);
     router.push("/");
   };
 
