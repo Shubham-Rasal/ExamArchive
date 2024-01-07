@@ -5,3 +5,8 @@ interface IResponse {
 interface IJWTPayload {
   [key: string]: string;
 }
+
+interface ICloudinaryPayload {
+  filepath: string;
+  tags: Array<string>;
+}
