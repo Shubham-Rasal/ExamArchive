@@ -1,6 +1,6 @@
 type TExamType = { [key: string]: Record<string, string> | string };
 
-const examNames = (params: TExamType) => {
+export const examNames = (params: TExamType) => {
   const names: string[] = [];
 
   for (let type in params) {

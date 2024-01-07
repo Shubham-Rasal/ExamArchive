@@ -23,9 +23,19 @@ const sanitizeInput = (
     const filename = tempFilePathArray.find(
       (filepath) => filepath.id === file.id
     )?.name;
+    const sanitizedFileName = filename?.substring(
+      0,
+      filename?.lastIndexOf(".")
+    );
     const fileObj = Object.assign(
       {},
-      { tags, uploaded_by, filename, year: file.year, exam_type: file.examType }
+      {
+        tags,
+        uploaded_by,
+        file: { filename: sanitizedFileName },
+        year: file.year,
+        exam_type: file.examType,
+      }
     );
 
     if (file.semester)
