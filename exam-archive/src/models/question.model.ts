@@ -6,11 +6,11 @@ import {
   RATING_TYPE,
   SEMESTER,
 } from "@/constants/constants";
+import { examNames } from "@/helpers/examNames";
 
 const QuestionSchema: Schema = new mongoose.Schema(
   {
-    public_url: { type: String, required: true, unique: true },
-    uploaded_by: { type: mongoose.Types.ObjectId, required: true, ref: User },
+    uploaded_by: { type: String, required: true, ref: User },
     year: {
       type: String,
       validate: {
@@ -19,14 +19,19 @@ const QuestionSchema: Schema = new mongoose.Schema(
           const yearInt = Number(year);
           const date = new Date();
           const presentYear = date.getFullYear();
-          if (digitRegex.test(year) || year.length !== 4) return false;
+          if (digitRegex.test(year) === false || year.length !== 4)
+            return false;
           if (yearInt < 1950 || yearInt > presentYear) return false;
         },
       },
       required: true,
       index: true,
     },
-    filename: { type: String, index: true },
+    file: {
+      filename: { type: String, index: true },
+      public_id: { type: String },
+      url: { type: String },
+    },
     exam_type: {
       type: String,
       required: true,
@@ -56,10 +61,10 @@ const QuestionSchema: Schema = new mongoose.Schema(
     subject_code: { type: String, index: true },
     subject_name: { type: String, index: true },
   },
-  { strict: true, timestamps: true }
+  { timestamps: true, strict: true }
 );
 
 const Question =
-  mongoose.models.user || mongoose.model("question", QuestionSchema);
+  mongoose.models.question || mongoose.model("question", QuestionSchema);
 
 export default Question;
