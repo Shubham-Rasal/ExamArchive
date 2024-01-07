@@ -46,7 +46,7 @@ const saveToLocalDirectory = async (fileArray: IForm[]) => {
         const buffer = Buffer.from(data);
 
         fs.writeFile(uploadDir, buffer, (error) => {
-          if (error) reject(new Error("abc"));
+          if (error) reject(new Error(error.message));
           else
             resolve({
               name: `${file.id}_${filename}`,
