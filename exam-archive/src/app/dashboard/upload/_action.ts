@@ -3,6 +3,7 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { v2 as cloudinary } from "cloudinary";
 import { uploadToCloudinary } from "@/helpers/cloudinary";
 import { IForm } from "./page";
 import sanitizeInput from "@/helpers/upload/sanitizeInput";
@@ -19,6 +20,10 @@ const uploadFilesToCloudinary = async (
   tempFilePathArray: ITempFilePathResponse[]
 ) => {
   try {
+    const { status } = await cloudinary.api.ping();
+    console.log(status);
+    if (status !== "ok")
+      throw new Error("Couldn't connect to cloudinary instance");
     const uploadFilePromises = tempFilePathArray.map((file) =>
       uploadToCloudinary(file.path)
     );
