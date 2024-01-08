@@ -86,7 +86,7 @@ export default function Upload() {
 
     try {
       const res = await handleUpload(formdata);
-      if (res.isError === true)
+      if (JSON.parse(res).isError === true)
         throw new Error("Something went wrong. Please try again later");
     } catch (error: any) {
       setError(error.message);
