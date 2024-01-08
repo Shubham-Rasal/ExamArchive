@@ -23,7 +23,7 @@ const uploadFilesToCloudinary = async (
       uploadToCloudinary(file.path)
     );
 
-    await Promise.allSettled(uploadFilePromises);
+    return await Promise.all(uploadFilePromises);
   } catch (error) {
     throw error;
   }
@@ -98,11 +98,13 @@ export async function handleUpload(formdata: FormData) {
   const res = { isError: false };
   try {
     tempFilePathArray = await saveToLocalDirectory(fileArray);
+    console.log(tempFilePathArray);
 
-    await Promise.allSettled([
+    const res = await Promise.all([
       saveToDatabase(fileArray, tempFilePathArray),
       uploadFilesToCloudinary(tempFilePathArray),
     ]);
+    console.log(res);
   } catch (error: any) {
     console.error(error.message);
     res.isError = true;
