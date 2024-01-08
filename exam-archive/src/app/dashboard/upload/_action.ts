@@ -98,13 +98,13 @@ export async function handleUpload(formdata: FormData) {
   const res = { isError: false };
   try {
     tempFilePathArray = await saveToLocalDirectory(fileArray);
-    console.log(tempFilePathArray);
+    console.log(JSON.stringify(tempFilePathArray, null, " "));
 
     const res = await Promise.all([
       saveToDatabase(fileArray, tempFilePathArray),
       uploadFilesToCloudinary(tempFilePathArray),
     ]);
-    console.log(res);
+    console.log(JSON.stringify(res, null, " "));
   } catch (error: any) {
     console.error(error.message);
     res.isError = true;
