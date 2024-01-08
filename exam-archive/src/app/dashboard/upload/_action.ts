@@ -2,6 +2,7 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { uploadToCloudinary } from "@/helpers/cloudinary";
 import { IForm } from "./page";
 import sanitizeInput from "@/helpers/upload/sanitizeInput";
@@ -37,11 +38,7 @@ const saveToLocalDirectory = async (fileArray: IForm[]) => {
       }
       file.file.arrayBuffer().then((data) => {
         const filename = file.file?.name.split(" ").join("_") ?? "file.pdf";
-        const uploadDir = path.join(
-          process.cwd(),
-          "public",
-          `/${file.id}_${filename}`
-        );
+        const uploadDir = path.join(os.tmpdir(), `/${file.id}_${filename}`);
 
         const buffer = Buffer.from(data);
 
