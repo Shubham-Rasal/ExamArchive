@@ -2,8 +2,6 @@
 
 import fs from "fs";
 import path from "path";
-import os from "os";
-import { v2 as cloudinary } from "cloudinary";
 import { uploadToCloudinary } from "@/helpers/cloudinary";
 import { IForm } from "./page";
 import sanitizeInput from "@/helpers/upload/sanitizeInput";
@@ -20,15 +18,11 @@ const uploadFilesToCloudinary = async (
   tempFilePathArray: ITempFilePathResponse[]
 ) => {
   try {
-    const { status } = await cloudinary.api.ping();
-    console.log(status);
-    if (status !== "ok")
-      throw new Error("Couldn't connect to cloudinary instance");
     const uploadFilePromises = tempFilePathArray.map((file) =>
       uploadToCloudinary(file.path)
     );
 
-    return await Promise.all(uploadFilePromises);
+    await Promise.allSettled(uploadFilePromises);
   } catch (error) {
     throw error;
   }
@@ -43,7 +37,11 @@ const saveToLocalDirectory = async (fileArray: IForm[]) => {
       }
       file.file.arrayBuffer().then((data) => {
         const filename = file.file?.name.split(" ").join("_") ?? "file.pdf";
-        const uploadDir = path.join(os.tmpdir(), `/${file.id}_${filename}`);
+        const uploadDir = path.join(
+          process.cwd(),
+          "public",
+          `/${file.id}_${filename}`
+        );
 
         const buffer = Buffer.from(data);
 
@@ -104,7 +102,7 @@ export async function handleUpload(formdata: FormData) {
   try {
     tempFilePathArray = await saveToLocalDirectory(fileArray);
 
-    const res = await Promise.all([
+    await Promise.allSettled([
       saveToDatabase(fileArray, tempFilePathArray),
       uploadFilesToCloudinary(tempFilePathArray),
     ]);
@@ -122,5 +120,5 @@ export async function handleUpload(formdata: FormData) {
         });
     });
   }
-  return JSON.stringify(res);
+  return res;
 }
