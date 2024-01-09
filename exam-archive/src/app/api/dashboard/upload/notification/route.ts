@@ -11,23 +11,24 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const req = await request.json();
 
-  const { public_id, secure_url, original_filename } = req as {
+  const { public_id, secure_url } = req as {
     public_id?: string;
     secure_url?: string;
-    original_filename?: string;
   };
 
-  if (!(public_id && secure_url && original_filename))
+  if (!(public_id && secure_url))
     return NextResponse.json(
       { message: "Couldn't update doc URL" },
       { status: ERROR_CODES["BAD REQUEST"] }
     );
 
+  const sanitizedFileName = public_id.split("/").slice(-1)[0];
+
   try {
     await connectDB();
 
     await Question.findOneAndUpdate(
-      { "file.filename": original_filename },
+      { "file.filename": sanitizedFileName },
       { "file.public_id": public_id, "file.url": secure_url },
       { upsert: false, new: true }
     )
