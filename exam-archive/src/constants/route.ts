@@ -6,6 +6,7 @@ export const PageRoutes = {
   },
   dashboard: {
     home: "/dashboard",
+    upload: "/dashboard/upload",
   },
 } as const;
 
@@ -16,5 +17,9 @@ export const ApiRoutes = {
     signOut: "/api/auth/signOut",
     reset: "/api/auth/reset",
     validate: "/api/auth/validate",
+  },
+  dashboard: {
+    upload: "/api/dashboard/upload",
+    uploadNotification: "/api/dashboard/upload/notification",
   },
 } as const;

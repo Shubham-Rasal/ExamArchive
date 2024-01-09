@@ -1,5 +1,5 @@
 import { SUCCESS_CODES } from "@/constants/statuscode";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const req = await request.json();
