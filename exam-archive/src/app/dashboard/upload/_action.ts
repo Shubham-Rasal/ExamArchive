@@ -1,7 +1,6 @@
 "use server";
 
-import fs from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
 import { uploadToCloudinary } from "@/helpers/cloudinary";
 import { IForm } from "./page";
 import sanitizeInput from "@/helpers/upload/sanitizeInput";
@@ -10,25 +9,31 @@ import Question from "@/models/question.model";
 
 export interface ITempFilePathResponse {
   id: string | null;
-  path: string;
+  dataURI: string;
   name: string;
+  type: string;
 }
 
 const uploadFilesToCloudinary = async (
   tempFilePathArray: ITempFilePathResponse[]
 ) => {
   try {
+    const { status } = await cloudinary.api.ping();
+
+    if (status !== "ok")
+      throw new Error("Couldn't connect to cloudinary instance");
+
     const uploadFilePromises = tempFilePathArray.map((file) =>
-      uploadToCloudinary(file.path)
+      uploadToCloudinary(file.dataURI, file.name)
     );
 
-    await Promise.allSettled(uploadFilePromises);
+    await Promise.all(uploadFilePromises);
   } catch (error) {
     throw error;
   }
 };
 
-const saveToLocalDirectory = async (fileArray: IForm[]) => {
+const createFileBuffer = async (fileArray: IForm[]) => {
   const uploadFilePromises = fileArray.map((file) => {
     return new Promise((resolve, reject) => {
       if (!file.file) {
@@ -37,22 +42,15 @@ const saveToLocalDirectory = async (fileArray: IForm[]) => {
       }
       file.file.arrayBuffer().then((data) => {
         const filename = file.file?.name.split(" ").join("_") ?? "file.pdf";
-        const uploadDir = path.join(
-          process.cwd(),
-          "public",
-          `/${file.id}_${filename}`
-        );
 
-        const buffer = Buffer.from(data);
+        const buffer = Buffer.from(data).toString("base64");
+        const dataURI = `data:${file.file?.type};base64,${buffer}`;
 
-        fs.writeFile(uploadDir, buffer, (error) => {
-          if (error) reject(new Error(error.message));
-          else
-            resolve({
-              name: `${file.id}_${filename}`,
-              path: uploadDir,
-              id: file.id,
-            });
+        resolve({
+          name: `${file.id}_${filename}`,
+          type: file.file?.type,
+          dataURI,
+          id: file.id,
         });
       });
     });
@@ -78,7 +76,7 @@ const saveToDatabase = async (
       Question.create(file)
     );
 
-    await Promise.allSettled(writeToDBPromises);
+    await Promise.all(writeToDBPromises);
   } catch (error) {
     throw error;
   }
@@ -100,25 +98,15 @@ export async function handleUpload(formdata: FormData) {
 
   const res = { isError: false };
   try {
-    tempFilePathArray = await saveToLocalDirectory(fileArray);
+    tempFilePathArray = await createFileBuffer(fileArray);
 
-    await Promise.allSettled([
+    await Promise.all([
       saveToDatabase(fileArray, tempFilePathArray),
       uploadFilesToCloudinary(tempFilePathArray),
     ]);
   } catch (error: any) {
     console.error(error.message);
     res.isError = true;
-  } finally {
-    tempFilePathArray.forEach((tempPath) => {
-      if (fs.existsSync(tempPath.path))
-        fs.unlink(tempPath.path, (error) => {
-          if (error) {
-            console.error(error.message);
-            res.isError = true;
-          }
-        });
-    });
   }
   return res;
 }
