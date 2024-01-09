@@ -11,7 +11,7 @@ export interface ITempFilePathResponse {
   id: string | null;
   dataURI: string;
   name: string;
-  type: string;
+  type?: string;
 }
 
 const uploadFilesToCloudinary = async (
@@ -34,27 +34,29 @@ const uploadFilesToCloudinary = async (
 };
 
 const createFileBuffer = async (fileArray: IForm[]) => {
-  const uploadFilePromises = fileArray.map((file) => {
-    return new Promise((resolve, reject) => {
-      if (!file.file) {
-        reject(new Error("File data is missing"));
-        return;
-      }
-      file.file.arrayBuffer().then((data) => {
-        const filename = file.file?.name.split(" ").join("_") ?? "file.pdf";
+  const uploadFilePromises: Promise<ITempFilePathResponse>[] = fileArray.map(
+    (file) => {
+      return new Promise((resolve, reject) => {
+        if (file.file === null) {
+          reject(new Error("File data is missing"));
+          return;
+        }
+        file.file.arrayBuffer().then((data) => {
+          const filename = file.file?.name.split(" ").join("_") ?? "file.pdf";
 
-        const buffer = Buffer.from(data).toString("base64");
-        const dataURI = `data:${file.file?.type};base64,${buffer}`;
+          const buffer = Buffer.from(data).toString("base64");
+          const dataURI = `data:${file.file?.type};base64,${buffer}`;
 
-        resolve({
-          name: `${file.id}_${filename}`,
-          type: file.file?.type,
-          dataURI,
-          id: file.id,
+          resolve({
+            name: `${file.id}_${filename}`,
+            type: file.file?.type,
+            dataURI,
+            id: file.id,
+          });
         });
       });
-    });
-  });
+    }
+  );
 
   try {
     return await Promise.all(uploadFilePromises);
@@ -94,7 +96,7 @@ export async function handleUpload(formdata: FormData) {
     Object.assign(fileArray[Number(index)], { [field]: value });
   });
 
-  let tempFilePathArray: any[] = [];
+  let tempFilePathArray: ITempFilePathResponse[] = [];
 
   const res = { isError: false };
   try {
