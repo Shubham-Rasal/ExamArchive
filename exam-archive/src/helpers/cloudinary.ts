@@ -18,23 +18,26 @@ import { v2 as cloudinary } from "cloudinary";
     process.env.CLOUDINARY_PRESET
   );
 
-  doPresetExists.catch((error) => {
-    if (error.error.http_code === ERROR_CODES["NOT FOUND"]) {
-      cloudinary.api.create_upload_preset({
-        name: process.env.CLOUDINARY_PRESET,
-        folder: process.env.CLOUDINARY_FOLDER,
-        allowed_formats: ALLOWED_FILE_FORMATS.join(", "),
-        unsigned: true,
-        format: TRANSFORMED_FORMAT,
-        async: true,
-        notification_url: `${process.env.PRODUCTION_URL}${ApiRoutes.dashboard.uploadNotification}`,
-      });
-      console.log("New upload preset created");
-    } else console.error(error);
-  });
+  doPresetExists
+    .catch((error: any) => {
+      if (error.error.http_code === ERROR_CODES["NOT FOUND"]) {
+        cloudinary.api.create_upload_preset({
+          name: process.env.CLOUDINARY_PRESET,
+          folder: process.env.CLOUDINARY_FOLDER,
+          allowed_formats: ALLOWED_FILE_FORMATS.join(", "),
+          unsigned: true,
+          format: TRANSFORMED_FORMAT,
+          async: true,
+          notification_url: `${process.env.PRODUCTION_URL}${ApiRoutes.dashboard.uploadNotification}`,
+        });
+        console.log("New upload preset created");
+      } else console.error(error);
+    });
 })();
 
-export const uploadToCloudinary = (filepath: string) =>
-  cloudinary.uploader.upload(filepath, {
+export const uploadToCloudinary = (dataURI: string, filename: string) =>
+  cloudinary.uploader.upload(dataURI, {
     upload_preset: process.env.CLOUDINARY_PRESET,
+    public_id: filename,
+    resource_type: "auto",
   });
