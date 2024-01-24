@@ -1,11 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import User from "./user.model";
-import {
-  BRANCH,
-  EXAM_TYPES,
-  RATING_TYPE,
-  SEMESTER,
-} from "@/constants/constants";
+import { BRANCH, EXAM_TYPES, SEMESTER } from "@/constants/constants";
 import { examNames } from "@/helpers/examNames";
 
 const QuestionSchema: Schema = new mongoose.Schema(
@@ -40,20 +35,29 @@ const QuestionSchema: Schema = new mongoose.Schema(
     },
     rating: [
       {
-        rating_type: {
-          type: String,
-          enum: Object.values(RATING_TYPE),
-          required: true,
-        },
-        1: { type: Number, default: 0 },
-        2: { type: Number, default: 0 },
-        3: { type: Number, default: 0 },
-        4: { type: Number, default: 0 },
-        5: { type: Number, default: 0 },
+        rating_type: { type: String, default: "helpful" },
+        total_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0 },
+      },
+      {
+        rating_type: { type: String, default: "standard" },
+        total_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0 },
+      },
+      {
+        rating_type: { type: String, default: "relevance" },
+        total_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0 },
       },
     ],
-    no_of_downloads: { type: Number, default: 0 },
-    no_of_views: { type: Number, default: 0 },
+    no_of_downloads: {
+      count: { type: Number, default: 0 },
+      userIds: [mongoose.Types.ObjectId],
+    },
+    no_of_views: {
+      count: { type: Number, default: 0 },
+      userIds: [mongoose.Types.ObjectId],
+    },
     tags: [{ type: String, index: true }],
     institution_name: { type: String, index: true },
     semester: { type: String, enum: Object.keys(SEMESTER), index: true },
