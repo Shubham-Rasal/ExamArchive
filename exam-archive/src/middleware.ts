@@ -19,13 +19,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(PageRoutes.dashboard.home, url));
   }
 
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    if (!authToken)
-      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-    const verifiedUser = await verifyTokens({ token: authToken.value });
-    if (!verifiedUser)
-      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-  }
+  // if (request.nextUrl.pathname.startsWith("/dashboard")) {
+  //   if (!authToken)
+  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+  //   const verifiedUser = await verifyTokens({ token: authToken.value });
+  //   if (!verifiedUser)
+  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+  // }
 
   return NextResponse.next();
 }

@@ -1,133 +1,190 @@
-"use client"
-import { useState } from "react";
+// Import necessary components and styles
+// Import necessary components and styles
+"use client";
+import React, { useState, ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+} from "@/components/ui/select";
 
-interface Data {
-  file: File;
-  name: string;
-  institution: string;
-  year: number;
-}
-
+// Main Upload component
 export default function Upload(): JSX.Element {
-  const [name, setName] = useState<string>("");
-  const [institution, setInstitution] = useState<string>("");
-  const [year, setYear] = useState<number>();
-  const [files, setFiles] = useState<FileList | null>(null);
-  const [fileData, setFileData] = useState<Data[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileSizeError, setFileSizeError] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [name, setName] = useState("");
+  const [size, setSize] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [examInfo, setExamInfo] = useState<string>("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(e.target.files);
+  // Function to handle file change
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      // Check file size
+      if (file.size > 5 * 1024 * 1024) {
+        setFileSizeError(true);
+        return;
+      }
+
+      setFileSizeError(false);
+      setSelectedFile(file);
+      setName(file.name);
+      setSize(file.size);
+      setProgress(50);
     }
   };
 
-  const handleUploadClick = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (files) {
-      const newData: Data[] = Array.from(files).map((file) => ({
-        file,
-        name,
-        institution,
-        year: year || 0,
-      }));
-      setFileData((data) => [...data, ...newData]);
-    }
-    setFiles(null);
+  const handleCancelUpload = () => {
+    setSelectedFile(null);
+    setFileSizeError(false);
     setName("");
-    setInstitution("");
-    setYear(undefined);
+    setProgress(0);
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+  const handleNext = () => {
+    if (currentPage === 1 && selectedFile && !fileSizeError) {
+      setCurrentPage(2);
+    }
   };
 
-  const handleInstitutionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInstitution(e.target.value);
+  const handleBefore = () => {
+    if (currentPage === 2) {
+      setCurrentPage(1);
+    }
   };
 
-  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setYear(parseInt(e.target.value));
-  };
-
-  const handleDelete = (index: number) => {
-    const updatedData = [...fileData];
-    updatedData.splice(index, 1);
-    setFileData(updatedData);
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    
-    console.log(fileData);
+  // Function to handle exam selection
+  const handleExamSelect = (value: string) => {
+    console.log("hello")
+    setExamInfo(value);
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-800 text-white py-8">
-      <h1 className="text-3xl text-cyan-300 mb-8 font-bold">Upload Files/Folder Page</h1>
-      <form onSubmit={handleUploadClick} className="w-full max-w-lg bg-gray-700 p-6 rounded-lg shadow-md">
-        <label className="block mb-2 text-cyan-300">Name of the Paper</label>
-        <input
-          type="text"
-          className="border rounded px-3 py-2 mb-3 w-full bg-gray-900 text-white"
-          value={name}
-          onChange={handleNameChange}
-        />
+    <div className="container mx-auto p-8">
+      <h1 className="text-center text-3xl font-bold mb-8">Upload File</h1>
 
-        <label className="block mb-2 text-cyan-300">Institution</label>
-        <input
-          type="text"
-          className="border rounded px-3 py-2 mb-3 w-full bg-gray-900 text-white"
-          value={institution}
-          onChange={handleInstitutionChange}
-        />
+      {currentPage === 1 && (
+        <div className="mb-8">
+          <Label className="mb-4 text-lg font-semibold">Upload File</Label>
+          <Input type="file" onChange={handleFileChange} className="mb-4" />
+          {fileSizeError && (
+            <p className="text-red-500">File size exceeds 5MB limit</p>
+          )}
 
-        <label className="block mb-2 text-cyan-300">Year</label>
-        <input
-          type="number"
-          className="border rounded px-3 py-2 mb-6 w-full bg-gray-900 text-white"
-          value={year || ""}
-          onChange={handleYearChange}
-        />
+          {/* File preview */}
+          {selectedFile && (
+            <div>
+              <Label>FileName</Label>
+              <h3>{name}</h3>
+              <Label>FileSize</Label>
+              <h3>{(size / 1024).toFixed(2)} KB</h3>
+              <Select >
+                <SelectTrigger className="w-[180px] mt-4">
+                  <SelectValue placeholder="Select an exam" />
+                </SelectTrigger>
+                <SelectContent >
+                <SelectGroup onChange={(selectedValue:any) => setExamInfo(selectedValue)}>
+  <SelectLabel>Exams</SelectLabel>
+  <SelectItem value="University/College">University/College</SelectItem>
+  <SelectItem value="GATE">GATE</SelectItem>
+  <SelectItem value="JEE Mains">JEE Mains</SelectItem>
+  <SelectItem value="JEE Advanced">JEE Advanced</SelectItem>
+  <SelectItem value="NEET">NEET</SelectItem>
+</SelectGroup>
+                </SelectContent>
+              </Select>
+              <div className="mt-6 space-x-2">
+                <Button
+                  onClick={handleCancelUpload}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  Cancel Upload
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
 
-        <label className="block mb-2 text-cyan-300">Browse</label>
-        <input
-          type="file"
-          onChange={handleFileChange}
-          multiple
-          className="mb-4"
-        />
+          <Progress value={progress} className="w-[60%] mb-4 mt-10" />
+        </div>
+      )}
 
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out w-full block mb-4"
-        >
-          Add
-        </button>
-      </form>
-      <div className="w-full max-w-lg bg-gray-700 p-6 rounded-lg shadow-md mt-6">
-        {fileData.map((file, index) => (
-          <div key={index} className="flex items-center justify-between mb-4">
-            <span>{`${file.name} `}</span>
-            <button
-              onClick={() => handleDelete(index)}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded transition duration-300 ease-in-out"
+      {currentPage === 2 && (
+        
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Page 2 Content</h2>
+          {examInfo === "University/College" && (
+            <div>
+              <Label>University/College Info</Label>
+              <Input
+                type="text"
+                placeholder="Enter University/College Info"
+                onChange={(e) => setExamInfo(e.target.value)}
+                className="mb-4"
+              />
+            </div>
+          )}
+
+          {examInfo === "GATE" && (
+            <div>
+              <Label>GATE Info</Label>
+              <Input
+                type="text"
+                placeholder="Enter GATE Info"
+                onChange={(e) => setExamInfo(e.target.value)}
+                className="mb-4"
+              />
+            </div>
+          )}
+
+          <div className="mt-6 space-x-2">
+            <Button
+              onClick={handleBefore}
+              className="bg-gray-500 hover:bg-gray-600"
             >
-              Delete
-            </button>
+              Back
+            </Button>
+            <Button
+              onClick={handleNext}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Next
+            </Button>
           </div>
-        ))}
-        {fileData.length > 0 && (
-          <div className="flex justify-between">
-            <button onClick={handleClick} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out w-1/2 mb-2 mr-2">
-              Upload
-            </button>
-            <button onClick={handleClick} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out w-1/2 mb-2 ml-2">
-              BookMark as folder
-            </button>
-          </div>
-        )}
-      </div>
+          <Progress value={progress} className="w-[60%] mb-4 mt-6" />
+        </div>
+      )}
+
+      {currentPage === 3 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Page 3 Content</h2>
+          <Label>File Name</Label>
+          <h3>{name}</h3>
+          <Label>File Size</Label>
+          <h3>{(size / 1024).toFixed(2)} KB</h3>
+          <Label>Exam Info</Label>
+          <h3>{examInfo}</h3>
+          {/* Add relevant form fields, buttons, etc. */}
+        </div>
+      )}
     </div>
   );
 }
