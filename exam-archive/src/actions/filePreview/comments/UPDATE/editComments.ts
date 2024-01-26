@@ -46,11 +46,7 @@ export const editComment = async ({
         ERROR_CODES["NOT FOUND"]
       );
 
-    return {
-      hasError: false,
-      message: "Comment was successfully updated",
-      statusCode: SUCCESS_CODES.ACCEPTED,
-    };
+    return { hasError: false, statusCode: SUCCESS_CODES.ACCEPTED };
   } catch (error: any) {
     console.error(error?.message);
     return errorResponse(error);
