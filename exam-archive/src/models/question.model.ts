@@ -37,17 +37,17 @@ const QuestionSchema: Schema = new mongoose.Schema(
       {
         rating_type: { type: String, default: "helpful" },
         total_rating: { type: Number, default: 0 },
-        average_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0, min: 0, max: 5 },
       },
       {
         rating_type: { type: String, default: "standard" },
         total_rating: { type: Number, default: 0 },
-        average_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0, min: 0, max: 5 },
       },
       {
         rating_type: { type: String, default: "relevance" },
         total_rating: { type: Number, default: 0 },
-        average_rating: { type: Number, default: 0 },
+        average_rating: { type: Number, default: 0, min: 0, max: 5 },
       },
     ],
     no_of_downloads: {
