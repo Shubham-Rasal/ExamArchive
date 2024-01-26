@@ -5,18 +5,33 @@ import { ERROR_CODES, SUCCESS_CODES } from "@/constants/statuscode";
 import ErrorHandler, { errorResponse } from "@/helpers/errorHandler";
 import connectDB from "@/lib/config/database.config";
 import Question from "@/models/question.model";
-import mongoose from "mongoose";
 
-export const updateQuestionTags = async (
-  postId: mongoose.Types.ObjectId,
-  newTags: string[]
-): Promise<IServerActionResponse> => {
+const sanitizedTags = (tags: string[]) => {
+  const sanitizedTags = tags
+    .map((tag) => tag.trim().toLowerCase())
+    .filter(Boolean);
+
+  return sanitizedTags;
+};
+
+export const updateQuestionTags = async ({
+  postId,
+  newTags,
+}: {
+  postId: string;
+  newTags: string[];
+}): Promise<IServerActionResponse> => {
   try {
+    newTags = sanitizedTags(newTags);
+
+    if (newTags.length === 0)
+      return { hasError: false, statusCode: SUCCESS_CODES.OK };
+
     await connectDB();
 
     const res = await Question.findByIdAndUpdate(
       { _id: postId },
-      { $push: { tags: { $each: newTags } } },
+      { $addToSet: { tags: { $each: newTags } } },
       { upsert: false, new: true }
     )
       .select({ _id: 1 })
