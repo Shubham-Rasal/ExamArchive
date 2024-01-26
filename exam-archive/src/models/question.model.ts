@@ -5,7 +5,7 @@ import { examNames } from "@/helpers/examNames";
 
 const QuestionSchema: Schema = new mongoose.Schema(
   {
-    uploaded_by: { type: String, required: true, ref: User },
+    uploaded_by: { type: mongoose.Types.ObjectId, required: true, ref: User },
     year: {
       type: String,
       validate: {
