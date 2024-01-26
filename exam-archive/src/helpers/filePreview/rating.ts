@@ -28,5 +28,5 @@ export const calculateRating = ({
   newRating: number;
 }) => {
   if (totalRating < 0 || avgRating < 0 || newRating < 0) return avgRating;
-  return (avgRating * totalRating + newRating) / (totalRating + newRating);
+  return (avgRating * totalRating + newRating) / (totalRating + 1);
 };

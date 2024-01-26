@@ -40,8 +40,7 @@ const updateRatings = async ({
   await connectDB();
   const session = await mongoose.startSession();
 
-  const { ratingArrayValues, helpfulRating, standardRating, relevanceRating } =
-    getRatingArrayValues(ratingArray);
+  const { ratingArrayValues } = getRatingArrayValues(ratingArray);
 
   try {
     if (isRatingArrayValid(ratingArrayValues) === false)
@@ -67,14 +66,14 @@ const updateRatings = async ({
         );
       }
 
-      rating = rating.map((item, i) => ({
+      rating = rating.map((item, index) => ({
         ...item,
         average_rating: calculateRating({
           totalRating: item.total_rating,
           avgRating: item.average_rating,
-          newRating: ratingArrayValues[i],
+          newRating: ratingArrayValues[index],
         }),
-        total_rating: item.total_rating + ratingArrayValues[i],
+        total_rating: item.total_rating + ratingArrayValues[index],
       }));
 
       const updateDataInDBPromises = [
