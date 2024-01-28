@@ -48,3 +48,7 @@ export const BRANCH = Object.freeze({
 export const ALLOWED_FILE_FORMATS = ["jpg", "png", "pdf"] as const;
 export const TRANSFORMED_FORMAT = "pdf";
 export const MAX_FILE_SIZE = 200000;
+
+export const MAX_COMMENT_LENGTH = 2000;
+
+export const MAX_COMMENT_FETCH_LIMIT = 1;
