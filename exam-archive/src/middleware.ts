@@ -14,7 +14,7 @@ const isPathNameProtected = (pathname: string) => {
 };
 
 export const config = {
-  matcher: [...protectedRoutes, "/auth/(signIn|newUser|reset)"],
+  matcher: ["/upload", "/auth/(signIn|newUser|reset)"],
 };
 
 export async function middleware(request: NextRequest) {
