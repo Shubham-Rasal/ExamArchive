@@ -115,7 +115,7 @@ const uploadfileAction = async (
     fileInfoArray = await createFileBuffer(fileArray);
 
     await Promise.all([
-      // saveToDatabase(fileArray, tempFilePathArray),
+      saveToDatabase(fileArray, fileInfoArray),
       uploadFilesToCloudinary(fileInfoArray),
     ]);
     return { hasError: false, statusCode: SUCCESS_CODES.CREATED };

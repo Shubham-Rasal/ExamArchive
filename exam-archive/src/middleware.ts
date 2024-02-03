@@ -14,7 +14,7 @@ const isPathNameProtected = (pathname: string) => {
 };
 
 export const config = {
-  matcher: ["/upload", "/auth/(signIn|newUser|reset)"],
+  matcher: [...protectedRoutes, "/auth/(signIn|newUser|reset)"],
 };
 
 export async function middleware(request: NextRequest) {
@@ -27,13 +27,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(PageRoutes.dashboard.home, url));
   }
 
-  // if (isPathNameProtected(request.nextUrl.pathname)) {
-  //   if (!authToken)
-  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-  //   const verifiedUser = await verifyTokens({ token: authToken.value });
-  //   if (!verifiedUser)
-  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-  // }
+  if (isPathNameProtected(request.nextUrl.pathname)) {
+    if (!authToken)
+      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+    const verifiedUser = await verifyTokens({ token: authToken.value });
+    if (!verifiedUser)
+      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+  }
 
   return NextResponse.next();
 }
