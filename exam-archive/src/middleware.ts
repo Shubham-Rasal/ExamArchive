@@ -5,8 +5,16 @@ import { AUTH_TOKEN } from "./constants/constants";
 import { verifyTokens } from "./helpers/auth/jsonwebtokens";
 import { PageRoutes } from "./constants/route";
 
+export const protectedRoutes = ["/upload"];
+
+const isPathNameProtected = (pathname: string) => {
+  return protectedRoutes.some(
+    (route) => route.trim().toLowerCase() === pathname.trim().toLowerCase()
+  );
+};
+
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/(signIn|newUser|reset)"],
+  matcher: [...protectedRoutes, "/auth/(signIn|newUser|reset)"],
 };
 
 export async function middleware(request: NextRequest) {
@@ -16,16 +24,16 @@ export async function middleware(request: NextRequest) {
   if (authToken?.value && request.nextUrl.pathname.startsWith("/auth")) {
     const verifiedUser = await verifyTokens({ token: authToken.value });
     if (verifiedUser !== false)
-      return NextResponse.redirect(new URL(PageRoutes.dashboard.home, url));
+      return NextResponse.redirect(new URL(PageRoutes.search, url));
   }
 
-  // if (request.nextUrl.pathname.startsWith("/dashboard")) {
-  //   if (!authToken)
-  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-  //   const verifiedUser = await verifyTokens({ token: authToken.value });
-  //   if (!verifiedUser)
-  //     return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
-  // }
+  if (isPathNameProtected(request.nextUrl.pathname)) {
+    if (!authToken)
+      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+    const verifiedUser = await verifyTokens({ token: authToken.value });
+    if (!verifiedUser)
+      return NextResponse.redirect(new URL(PageRoutes.auth.signIn, url));
+  }
 
   return NextResponse.next();
 }
