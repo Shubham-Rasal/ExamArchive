@@ -37,8 +37,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
-export const runtime = "edge";
-
 interface Paper {
   title: string;
   year: number;
