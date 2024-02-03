@@ -20,7 +20,7 @@ export const EXAM_TYPES = {
     "PRACTICAL-I": "Practical I",
     "PRACTICAL-II": "Practical II",
   },
-};
+} as const;
 
 export const RATING_TYPE = Object.freeze({
   HELPFUL: "helpful",
@@ -41,13 +41,30 @@ export const SEMESTER = Object.freeze({
 
 // TODO : add more branches
 
-export const BRANCH = Object.freeze({
-  CSE: "Computer Science and Engineering",
+export const BRANCH: Array<{ label: string }> = [
+  { label: "Computer Science and Engineering" },
+];
+
+export const INSTITUTIONS: Array<{ label: string }> = [
+  {
+    label: "National Institute of Technology, Karnataka (NITK)",
+  },
+];
+
+export const SUBJECT: Array<{ label: string }> = [
+  { label: "Operating Systems" },
+  { label: "Data Structure and Algorithms" },
+];
+
+export const REDIS_COLLECTION_NAME = Object.freeze({
+  INSTITUTIONS: "INSTITUTIONS",
+  BRANCH: "BRANCH",
+  "SUBJECT NAME": "SUBJECT_NAME",
 });
 
-export const ALLOWED_FILE_FORMATS = ["jpg", "png", "pdf"] as const;
+export const ALLOWED_FILE_FORMATS = ["pdf"] as const;
 export const TRANSFORMED_FORMAT = "pdf";
-export const MAX_FILE_SIZE = 200000;
+export const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 export const MAX_COMMENT_LENGTH = 2000;
 
