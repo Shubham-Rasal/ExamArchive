@@ -11,6 +11,7 @@ import { useMultiStepForm } from "@/hooks/upload/useMultiStepForm";
 import getMultiStepComponents from "@/helpers/upload/getMultiStepComponent";
 import FileUpload from "@/components/upload/FileUpload";
 import { EXAM_TYPES } from "@/constants/constants";
+import uploadfileAction from "@/actions/upload/POST/uploadFiles";
 
 export type TUploadFile = z.infer<typeof uploadFileSchema>;
 const MAX_LENGTH_OF_FILES_INFO_ARRAY = 2;
@@ -35,6 +36,7 @@ export default function UploadPage() {
   const { currentStepIndex, lastIndex, componentToRender, next, back, goTo } =
     useMultiStepForm(components);
   const [filesInfo, setFilesInfo] = useState<TUploadFile[]>([]);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const exam = formProps.watch("examType");
@@ -50,15 +52,26 @@ export default function UploadPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formProps.watch("examType")]);
 
-  const handleFormSubmit = (values: TUploadFile) => {
-    setFilesInfo((prevInfo) => [...prevInfo, values]);
+  const handleFormSubmit = async (values: TUploadFile) => {
+    filesInfo.push(values);
+    const formdata = new FormData();
 
-    // setFilesInfo([]);
+    filesInfo.forEach((details, index) => {
+      Object.entries(details).forEach(([key, value]) => {
+        formdata.append(`${key}:${index}`, value);
+      });
+    });
+
+    const res = await uploadfileAction(formdata);
+
+    if (res.hasError) {
+      setError(res.message as string);
+      return;
+    }
+    setFilesInfo([]);
     goTo(0);
     formProps.reset();
   };
-
-  console.log(filesInfo);
 
   const handleAnotherFileEvent = (values: TUploadFile) => {
     if (filesInfo.length === MAX_LENGTH_OF_FILES_INFO_ARRAY) return;
@@ -90,6 +103,7 @@ export default function UploadPage() {
         )}
         {currentStepIndex === lastIndex && (
           <div>
+            {error.length > 0 && <div>{error}</div>}
             <Button type="button" onClick={back}>
               Previous
             </Button>

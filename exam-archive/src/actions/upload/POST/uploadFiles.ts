@@ -5,6 +5,9 @@ import { uploadToCloudinary } from "@/helpers/cloudinary";
 import sanitizeInput from "@/helpers/upload/sanitizeInput";
 import connectDB from "@/lib/config/database.config";
 import Question from "@/models/question.model";
+import { TUploadFile } from "@/app/(features)/upload/page";
+import { errorResponse } from "@/helpers/errorHandler";
+import { SUCCESS_CODES } from "@/constants/statuscode";
 
 export interface ITempFilePathResponse {
   id: string | null;
@@ -12,6 +15,8 @@ export interface ITempFilePathResponse {
   name: string;
   type?: string;
 }
+
+export type TUploadFileExtended = { id: string } & TUploadFile;
 
 const uploadFilesToCloudinary = async (
   tempFilePathArray: ITempFilePathResponse[]
@@ -32,7 +37,7 @@ const uploadFilesToCloudinary = async (
   }
 };
 
-const createFileBuffer = async (fileArray: IForm[]) => {
+const createFileBuffer = async (fileArray: TUploadFileExtended[]) => {
   const uploadFilePromises: Promise<ITempFilePathResponse>[] = fileArray.map(
     (file) => {
       return new Promise((resolve, reject) => {
@@ -70,7 +75,7 @@ const createFileBuffer = async (fileArray: IForm[]) => {
 };
 
 const saveToDatabase = async (
-  fileArray: IForm[],
+  fileArray: TUploadFileExtended[],
   tempFilePathArray: ITempFilePathResponse[]
 ) => {
   const sanitizedFileArray = sanitizeInput(fileArray, tempFilePathArray);
@@ -88,31 +93,36 @@ const saveToDatabase = async (
   }
 };
 
-export async function handleUpload(formdata: FormData) {
+const uploadfileAction = async (
+  formdata: FormData
+): Promise<IServerActionResponse> => {
   const data = Object.fromEntries(formdata.entries());
 
-  const fileArray: IForm[] = [];
+  const fileArray: TUploadFileExtended[] = [];
 
   Object.entries(data).forEach(([key, value]) => {
     const [field, index] = key.split(":");
     if (!fileArray[Number(index)])
-      fileArray[Number(index)] = {} as unknown as IForm;
+      fileArray[Number(index)] = {
+        id: Date.now().toString(),
+      } as unknown as TUploadFileExtended;
     Object.assign(fileArray[Number(index)], { [field]: value });
   });
 
-  let tempFilePathArray: ITempFilePathResponse[] = [];
+  let fileInfoArray: ITempFilePathResponse[] = [];
 
-  const res = { isError: false };
   try {
-    tempFilePathArray = await createFileBuffer(fileArray);
+    fileInfoArray = await createFileBuffer(fileArray);
 
     await Promise.all([
-      saveToDatabase(fileArray, tempFilePathArray),
-      uploadFilesToCloudinary(tempFilePathArray),
+      // saveToDatabase(fileArray, tempFilePathArray),
+      uploadFilesToCloudinary(fileInfoArray),
     ]);
+    return { hasError: false, statusCode: SUCCESS_CODES.CREATED };
   } catch (error: any) {
     console.error(error.message);
-    res.isError = true;
+    return errorResponse(error);
   }
-  return res;
-}
+};
+
+export default uploadfileAction;
