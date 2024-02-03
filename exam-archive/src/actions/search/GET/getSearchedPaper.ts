@@ -1,6 +1,9 @@
 "use server";
 
-import { MONGO_READ_QUERY_TIMEOUT } from "@/constants/constants";
+import {
+  MAX_PAPERS_FETCH_LIMIT,
+  MONGO_READ_QUERY_TIMEOUT,
+} from "@/constants/constants";
 import { ERROR_CODES, SUCCESS_CODES } from "@/constants/statuscode";
 import ErrorHandler, { errorResponse } from "@/helpers/errorHandler";
 import connectDB from "@/lib/config/database.config";
@@ -13,18 +16,39 @@ type TFilteredPapers = Record<
 
 interface IFilteredPapers extends IServerActionResponse {
   papers: TFilteredPapers[];
+  hasMore: boolean;
+  totalRecords: number;
 }
 
-const getSearchedPapers = async (
-  filters: Record<string, string[] | string>
-): Promise<IServerActionResponse | IFilteredPapers> => {
+const getSearchedPapers = async ({
+  filters,
+  page,
+}: {
+  filters: Record<string, string[]> | undefined;
+  page: number;
+}): Promise<IServerActionResponse | IFilteredPapers> => {
   try {
+    const skipCount = (page - 1) * MAX_PAPERS_FETCH_LIMIT;
+
     await connectDB();
-    const filteredQuestions = await Question.find(filters)
-      .select({ file: 0, rating: 0 })
-      .maxTimeMS(MONGO_READ_QUERY_TIMEOUT)
-      .lean()
-      .exec();
+    const query = filters ?? {};
+
+    const [filteredQuestions, totalRecords]: [
+      filteredQuestions: TFilteredPapers[],
+      totalRecords: number
+    ] = await Promise.all([
+      Question.find(query)
+        .select({ file: 0, rating: 0 })
+        .sort({ updatedAt: -1 })
+        .maxTimeMS(MONGO_READ_QUERY_TIMEOUT)
+        .lean()
+        .skip(skipCount)
+        .limit(MAX_PAPERS_FETCH_LIMIT),
+      Question.countDocuments(query)
+        .maxTimeMS(MONGO_READ_QUERY_TIMEOUT)
+        .lean()
+        .exec(),
+    ]);
 
     if (!filteredQuestions)
       throw new ErrorHandler(
@@ -32,10 +56,15 @@ const getSearchedPapers = async (
         ERROR_CODES["NOT FOUND"]
       );
 
+    const totalPages = Math.ceil(Number(totalRecords) / MAX_PAPERS_FETCH_LIMIT);
+    const hasMore = totalPages > page;
+
     return {
       hasError: false,
       statusCode: SUCCESS_CODES.OK,
       papers: filteredQuestions,
+      totalRecords,
+      hasMore,
     };
   } catch (error: any) {
     console.error(error.message);
