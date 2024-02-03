@@ -1,0 +1,67 @@
+{
+    "exams": [
+      {
+        "id": "1",
+        "title": "",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "2",
+        "title": "paper2",
+        "year": 2023,
+        "institution": "National Institute of Technology Trichy",
+        "term": "midsem"
+      },
+      {
+        "id": "3",
+        "title": "paper3",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "4",
+        "title": "paper4",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "5",
+        "title": "paper5",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "6",
+        "title": "paper6",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "7",
+        "title": "paper7",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "8",
+        "title": "paper8",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      },
+      {
+        "id": "9",
+        "title": "paper9",
+        "year": 2022,
+        "institution": "National Institute of Technology Karnataka",
+        "term": "midsem"
+      }
+    ]
+  }

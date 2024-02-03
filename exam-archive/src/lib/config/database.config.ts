@@ -17,12 +17,23 @@ const connectDB = async () => {
       ? 5000
       : Number(process.env.MONGO_TIMEOUT_MS);
 
+    const MAX_IDLE_TIMEOUT = 1000 * 60;
+
+    mongoose.connection.on("connecting", () =>
+      console.log("Initiating database connection...")
+    );
+    mongoose.connection.on("connected", () =>
+      console.log("Connected to database!🚀")
+    );
+    mongoose.connection.on("disconnected", () =>
+      console.log("Database disconnected. Trying to reconnect again...")
+    );
+
     await mongoose.connect(MONGO_URI, {
       maxPoolSize: MONGO_MAX_POOLSIZE,
       connectTimeoutMS: MONGO_TIMEOUT_MS,
+      maxIdleTimeMS: MAX_IDLE_TIMEOUT,
     });
-
-    console.log("Connected to database!🚀");
   } catch (error: any) {
     console.log(error.message);
   }
