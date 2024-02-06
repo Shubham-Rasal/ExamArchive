@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import User from "./user.model";
-import { BRANCH, EXAM_TYPES, SEMESTER } from "@/constants/constants";
+import { EXAM_TYPES, SEMESTER } from "@/constants/constants";
 import { examNames } from "@/helpers/examNames";
 
 const QuestionSchema: Schema = new mongoose.Schema(
@@ -61,7 +61,7 @@ const QuestionSchema: Schema = new mongoose.Schema(
     tags: [{ type: String, index: true }],
     institution_name: { type: String, index: true },
     semester: { type: String, enum: Object.keys(SEMESTER), index: true },
-    branch: { type: String, enum: Object.keys(BRANCH), index: true },
+    branch: { type: String, index: true },
     subject_code: { type: String, index: true },
     subject_name: { type: String, index: true },
   },

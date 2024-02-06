@@ -11,5 +11,5 @@ export const ApiRoutes = {
   auth: {
     validate: "/api/auth/validate",
   },
-  uploadNotification: "/api/dashboard/upload/notification",
+  uploadNotification: "/api/upload/notification",
 } as const;
