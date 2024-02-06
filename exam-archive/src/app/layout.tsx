@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider"
 const inter = Inter({ subsets: ["latin"] });
 
-import Navbar from "@/components/parts/Navbar";
+// import Navbar from "@/components/parts/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,7 +26,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <div>
-              <Navbar />
+              {/* <Navbar /> */}
             {children}
             </div>
             

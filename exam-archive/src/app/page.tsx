@@ -34,7 +34,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
 interface Paper {
@@ -71,8 +71,6 @@ const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
   console.log(e.currentTarget); // Using currentTarget instead of target
 };
 
-
-
 export default async function SearchPage(): Promise<JSX.Element> {
   const papers = await getPapers();
 
@@ -80,7 +78,6 @@ export default async function SearchPage(): Promise<JSX.Element> {
   // const [institution,setInstitution]=useState("")
   // const [year,setYear]=useState(0)
   // const [term,setTerm]=useState("")
-  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center mt-10">
@@ -117,10 +114,9 @@ export default async function SearchPage(): Promise<JSX.Element> {
 
           {/* Paper Name Filter */}
           <div className="m-6 p-2  rounded-full">
-            <Label className="m-6"  >Paper Name</Label>
+            <Label className="m-6">Paper Name</Label>
             <Input
               className="w-50 m-4 text-lg rounded-full border border-gray-300 focus:border-blue-500 focus:outline-none"
-              
               placeholder="Add paper name"
             />
           </div>
@@ -151,7 +147,9 @@ export default async function SearchPage(): Promise<JSX.Element> {
               placeholder="Add Term"
             />
           </div>
-          <Button className=" m-6 p-2 rounded-full flex justify-center" >Apply</Button>
+          <Button className=" m-6 p-2 rounded-full flex justify-center">
+            Apply
+          </Button>
         </div>
 
         {/* Displaying Papers */}
