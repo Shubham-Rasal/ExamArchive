@@ -1,6 +1,8 @@
-import { ITempFilePathResponse } from "@/app/dashboard/upload/_action";
-import { IForm } from "@/app/dashboard/upload/page";
-import { AUTH_TOKEN, BRANCH, SEMESTER } from "@/constants/constants";
+import {
+  ITempFilePathResponse,
+  TUploadFileExtended,
+} from "./../../actions/upload/POST/uploadFiles";
+import { AUTH_TOKEN, SEMESTER } from "@/constants/constants";
 import { decodeJwt } from "jose";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies } from "next/headers";
@@ -10,16 +12,16 @@ const getKey = (object: Record<string, string>, value: string) => {
 };
 
 const sanitizeInput = (
-  fileArray: IForm[],
+  fileArray: TUploadFileExtended[],
   tempFilePathArray: ITempFilePathResponse[]
 ) => {
   const sanitizedFileArray = [];
   const authToken = cookies().get(AUTH_TOKEN) as RequestCookie;
-  const { username } = decodeJwt(authToken.value) as { username: string };
+  const { userId } = decodeJwt(authToken.value) as { userId: string };
 
   for (let file of fileArray) {
-    const tags = file.tag.split(" ");
-    const uploaded_by = username;
+    const tags = file.tags.split(" ");
+    const uploaded_by = userId;
     const filename = tempFilePathArray.find(
       (filepath) => filepath.id === file.id
     )?.name;
@@ -37,8 +39,7 @@ const sanitizeInput = (
     if (file.semester)
       Object.assign(fileObj, { semester: getKey(SEMESTER, file.semester) });
 
-    if (file.branch)
-      Object.assign(fileObj, { branch: getKey(BRANCH, file.branch) });
+    if (file.branch) Object.assign(fileObj, { branch: file.branch });
 
     if (file.subjectName)
       Object.assign(fileObj, { subject_name: file.subjectName });
