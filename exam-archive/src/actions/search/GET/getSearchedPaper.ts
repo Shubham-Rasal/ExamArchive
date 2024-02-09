@@ -20,6 +20,17 @@ interface IFilteredPapers extends IServerActionResponse {
   totalRecords: number;
 }
 
+const getQuery = (filters: Record<string, string | string[]> | undefined) => {
+  const query = {};
+  if (filters === undefined) return query;
+  Object.entries(filters).map(([key, value]) => {
+    if (Array.isArray(value) === true)
+      Object.assign(query, { [key]: { $in: value } });
+    else Object.assign(query, { [key]: value });
+  });
+  return query;
+};
+
 const getSearchedPapers = async ({
   filters,
   page,
@@ -31,7 +42,8 @@ const getSearchedPapers = async ({
     const skipCount = (page - 1) * MAX_PAPERS_FETCH_LIMIT;
 
     await connectDB();
-    const query = filters ?? {};
+
+    const query = getQuery(filters);
 
     const [filteredQuestions, totalRecords]: [
       filteredQuestions: TFilteredPapers[],
