@@ -1,3 +1,5 @@
+"use server";
+
 import bcrypt from "bcrypt";
 import {
   ACTION,
@@ -8,22 +10,21 @@ import {
   MONGO_WRITE_QUERY_TIMEOUT,
   RESET_LINK_EXP_TIME,
 } from "@/constants/constants";
+import connectDB from "@/lib/config/database.config";
+import User from "@/models/user.model";
 import {
   ERROR_CODES,
   SERVER_ERROR,
   SUCCESS_CODES,
 } from "@/constants/statuscode";
 import { signTokens } from "@/helpers/auth/jsonwebtokens";
+import ErrorHandler, { errorResponse } from "@/helpers/errorHandler";
+import { PageRoutes } from "@/constants/route";
 import resetPasswordMail from "@/helpers/mailTemplate/resetPassword";
 import sendMail from "@/helpers/nodemailer";
-import connectDB from "@/lib/config/database.config";
-import User from "@/models/user.model";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { PageRoutes } from "@/constants/route";
 
-type TAction = (typeof ACTION)[keyof typeof ACTION];
+export type TAction = (typeof ACTION)[keyof typeof ACTION];
 
 interface IReset {
   email: string;
@@ -31,9 +32,11 @@ interface IReset {
   action: TAction;
 }
 
-export async function POST(request: NextRequest) {
-  const { action, email, password } = (await request.json()) as IReset;
-
+const resetAction = async ({
+  action,
+  email,
+  password,
+}: IReset): Promise<IServerActionResponse> => {
   if (action === ACTION.EMAIL) {
     try {
       await connectDB();
@@ -44,22 +47,25 @@ export async function POST(request: NextRequest) {
         .lean()
         .exec();
 
-      if (!user) {
-        return NextResponse.json(
-          { message: `User not registered` },
-          { status: ERROR_CODES["NOT FOUND"] }
-        );
-      }
+      if (!user)
+        throw new ErrorHandler("User not registered", ERROR_CODES["NOT FOUND"]);
 
       const resetToken = await signTokens({
         JWTPayload: { email },
         JWT_MAX_AGE: RESET_LINK_EXP_TIME,
       });
 
-      if (!resetToken) throw new Error(`Couldn't generate reset token`);
+      if (!resetToken)
+        throw new ErrorHandler(
+          `Couldn't generate reset token`,
+          SERVER_ERROR["INTERNAL SERVER ERROR"]
+        );
 
       if (process.env.DOMAIN_URL === undefined)
-        throw new Error("Specify your domain to generate a reset link");
+        throw new ErrorHandler(
+          "Specify your domain to generate a reset link",
+          SERVER_ERROR["INTERNAL SERVER ERROR"]
+        );
 
       const resetLink = `${process.env.DOMAIN_URL}${PageRoutes.auth.reset}?${AUTH_TOKEN}=${resetToken}`;
 
@@ -68,17 +74,14 @@ export async function POST(request: NextRequest) {
       const isSend = await sendMail({ email, subject, html });
       if (isSend === false) throw new Error();
 
-      return NextResponse.json(
-        { message: "Please check your inbox" },
-        { status: SUCCESS_CODES.OK }
-      );
+      return {
+        message: "Please check your inbox",
+        statusCode: SUCCESS_CODES.OK,
+        hasError: false,
+      };
     } catch (error: any) {
       console.error(error.message);
-
-      return NextResponse.json(
-        { message: "Something went wrong. Please try again later" },
-        { status: SERVER_ERROR["INTERNAL SERVER ERROR"] }
-      );
+      return errorResponse(error);
     }
   } else if (action === ACTION.RESET) {
     try {
@@ -97,16 +100,22 @@ export async function POST(request: NextRequest) {
         .lean()
         .exec();
 
-      if (!user) {
-        return NextResponse.json(
-          { message: `Email address doesn't exists` },
-          { status: ERROR_CODES["NOT FOUND"] }
+      if (!user)
+        throw new ErrorHandler(
+          `Email address doesn't exists`,
+          ERROR_CODES["NOT FOUND"]
         );
-      }
 
-      const token = await signTokens({ JWTPayload: { email }, JWT_MAX_AGE });
+      const token = await signTokens({
+        JWTPayload: { email, userId: (user as any)._id.toString() },
+        JWT_MAX_AGE,
+      });
 
-      if (token === null) throw new Error("Couldn't generate a JWT token");
+      if (token === null)
+        throw new ErrorHandler(
+          "Couldn't generate a JWT token",
+          SERVER_ERROR["INTERNAL SERVER ERROR"]
+        );
 
       cookies().set(AUTH_TOKEN, token, {
         httpOnly: true,
@@ -116,23 +125,22 @@ export async function POST(request: NextRequest) {
         path: "/",
       });
 
-      return NextResponse.json(
-        { message: "Password successfully changed" },
-        { status: SUCCESS_CODES.OK }
-      );
+      return {
+        hasError: false,
+        message: "Password successfully changed",
+        statusCode: SUCCESS_CODES.OK,
+      };
     } catch (error: any) {
       console.error(error.message);
-      return NextResponse.json(
-        {
-          message: "Something went wrong. Please try again later",
-        },
-        { status: SERVER_ERROR["INTERNAL SERVER ERROR"] }
-      );
+      return errorResponse(error);
     }
   } else {
-    return NextResponse.json(
-      { message: "Invalid action type" },
-      { status: ERROR_CODES["BAD REQUEST"] }
-    );
+    return {
+      hasError: true,
+      message: "Invalid action type",
+      statusCode: ERROR_CODES["BAD REQUEST"],
+    };
   }
-}
+};
+
+export default resetAction;

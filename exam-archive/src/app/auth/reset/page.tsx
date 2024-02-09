@@ -16,14 +16,16 @@ import { ACTION, AUTH_TOKEN } from "@/constants/constants";
 import validateToken from "@/helpers/auth/validateToken";
 import isEmail from "validator/lib/isEmail";
 import isValidPassword from "@/helpers/auth/validatePassword";
-import { ApiRoutes, PageRoutes } from "@/constants/route";
+import { PageRoutes } from "@/constants/route";
+import TextInput from "@/components/auth/TextInput";
+import resetAction, { TAction } from "@/actions/auth/reset/POST/reset";
 
 export type TReset = { password: string; email?: string };
 
 export default function Reset() {
-  const [actionType, setActionType] = useState<string>(ACTION.EMAIL);
+  const [actionType, setActionType] = useState<TAction>(ACTION.EMAIL);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -65,22 +67,23 @@ export default function Reset() {
       Object.assign(values, { action: actionType, email });
     }
 
-    const res = await fetch(ApiRoutes.auth.reset, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-      cache: "no-store",
+    const res = await resetAction({
+      email: values.email ?? email,
+      password: values.password,
+      action: actionType,
     });
-    if (!res.ok) {
-      const { message } = (await res.json()) as IResponse;
-      setError(message);
 
+    console.log(res);
+
+    if (res.hasError) {
+      setError(res.message as string);
       return;
     }
+
     setError(null);
     formProps.reset();
 
-    if (actionType === ACTION.RESET) router.push(PageRoutes.dashboard.home);
+    if (actionType === ACTION.RESET) router.push(PageRoutes.search);
   };
 
   return (
@@ -108,23 +111,11 @@ export default function Reset() {
           }}
         />
         {actionType === ACTION.RESET ? (
-          <FormField
+          <TextInput
             control={formProps.control}
             name="password"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
+            type="password"
+            placeholder="Enter Password"
           />
         ) : null}
         {error !== null && <div>{error}</div>}

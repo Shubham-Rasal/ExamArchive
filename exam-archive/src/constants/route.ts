@@ -4,18 +4,11 @@ export const PageRoutes = {
     signIn: "/auth/signIn",
     reset: "/auth/reset",
   },
-  dashboard: {
-    home: "/dashboard",
-    upload: "/dashboard/upload",
-  },
+  search: "/search",
 } as const;
 
 export const ApiRoutes = {
   auth: {
-    newUser: "/api/auth/newUser",
-    signIn: "/api/auth/signIn",
-    signOut: "/api/auth/signOut",
-    reset: "/api/auth/reset",
     validate: "/api/auth/validate",
   },
   uploadNotification: "/api/upload/notification",

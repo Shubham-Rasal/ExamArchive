@@ -7,35 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { ApiRoutes, PageRoutes } from "@/constants/route";
-
-const loginFormSchema = z
-  .object({
-    username: z.string().trim(),
-    password: z
-      .string()
-      .trim()
-      .min(6, { message: "Minimum length of the password must be 6" })
-      .max(8, { message: "Maximum length of the password must be 8" })
-      .refine(
-        (password) => {
-          const digitRegex = /\d/;
-          const symbolRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
-          return digitRegex.test(password) && symbolRegex.test(password);
-        },
-        { message: "Password must contain atleast one digit and one symbol" }
-      ),
-  })
-  .required();
+import { PageRoutes } from "@/constants/route";
+import loginFormSchema from "./loginSchema";
+import TextInput from "@/components/auth/TextInput";
+import signInAction from "@/actions/auth/signIn/POST/signIn";
 
 export type TLogin = z.infer<typeof loginFormSchema>;
 
@@ -49,63 +26,33 @@ export default function Login() {
   });
 
   const handleSubmit = async (values: TLogin) => {
-    const res = await fetch(ApiRoutes.auth.signIn, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-      cache: "no-store",
-    });
+    const { username, password } = values;
+    const res = await signInAction({ username, password });
 
-    if (!res.ok) {
-      const { message } = (await res.json()) as IResponse;
-      setError(message);
+    if (res.hasError) {
+      setError(res.message as string);
       return;
     }
 
     setError(null);
     formProps.reset();
-
-    router.push(PageRoutes.dashboard.home);
+    router.push(PageRoutes.search);
   };
 
   return (
     <Form {...formProps}>
       <form onSubmit={formProps.handleSubmit(handleSubmit)}>
-        <FormField
+        <TextInput
           control={formProps.control}
           name="username"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Enter your username or email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          placeholder="Enter your username or email"
+          type="text"
         />
-        <FormField
+        <TextInput
           control={formProps.control}
           name="password"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          type="password"
+          placeholder="Enter password"
         />
         {error !== null && <div>{error}</div>}
         <Link href={PageRoutes.auth.reset}>
