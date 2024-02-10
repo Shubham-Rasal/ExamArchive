@@ -47,7 +47,7 @@ interface Paper {
 
 async function getPapers(): Promise<Paper[]> {
   try {
-    const result = await fetch("http://localhost:5000/papers");
+    const result = await fetch("http://localhost:4000/papers");
     console.log(result);
 
     if (!result.ok) {

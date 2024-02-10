@@ -12,6 +12,7 @@ export const updateNoOfViews = async (
   postId: mongoose.Types.ObjectId,
   userId: mongoose.Types.ObjectId
 ): Promise<IServerActionResponse> => {
+  console.log("hi")
   try {
     await connectDB();
 
@@ -40,6 +41,7 @@ export const updateNoOfViews = async (
       message: "Views count updated",
     };
   } catch (error: any) {
+    console.log('kl')
     console.error(error?.message);
     return errorResponse(error);
   }
